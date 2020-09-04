@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -27,9 +28,25 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// No arguments? Then just dump a link to browse origin
 	if flag.NArg() == 0 {
 		fmt.Println(repos.GetHTTPLink())
-	} else {
-		fmt.Println(repos.GetCommitLink(flag.Arg(0)))
+		return
+	}
+
+	// Loop through arguments to find out what they represent
+	for i := 0; i < flag.NArg(); i += 1 {
+		arg := flag.Arg(i)
+		// File exists?
+		if _, err := os.Stat(arg); err == nil {
+			fmt.Println(repos.GetFileLink("master", arg))
+			continue
+		}
+
+		// Parseable as a commit?
+		if out, err := exec.Command("git", "rev-parse", arg).Output(); err == nil {
+			fmt.Println(repos.GetCommitLink(string(out)))
+		}
+
 	}
 }

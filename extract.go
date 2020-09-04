@@ -65,6 +65,27 @@ func (r Repository) GetCommitLink(sha string) string {
 	return "UNKNOWN"
 }
 
+// Get a link to a file
+func (r Repository) GetFileLink(branch, filename string) string {
+	if strings.HasPrefix(filename, "./") {
+		filename = filename[2:]
+	}
+	// TODO: Try resolving commitish to a real SHA?
+	if r.GetHostingKind() == HK_GITLAB {
+		return fmt.Sprintf(
+			"https://%s/%s/%s/-/blob/%s/%s",
+			r.Hostname, r.Organisation, r.Repository, branch, filename)
+	}
+
+	if r.GetHostingKind() == HK_GITHUB {
+		return fmt.Sprintf(
+			"https://%s/%s/%s/blob/%s/%s",
+			r.Hostname, r.Organisation, r.Repository, branch, filename)
+	}
+
+	return "UNKNOWN"
+}
+
 func Extract(gitlink string) (Repository, error) {
 	if strings.HasPrefix(gitlink, "https://") {
 		u, err := url.Parse(gitlink)

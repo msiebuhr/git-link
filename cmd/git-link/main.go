@@ -14,6 +14,11 @@ import (
 var remoteName = flag.String("remote", "origin", "What remote to genenrate links for")
 var doOpen = flag.Bool("open", false, "Immediately open in browser")
 
+// Formats a URL as a Hyperlink in a terminal
+func format_url(url string) string {
+	return fmt.Sprintf("\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\", url, url)
+}
+
 func main() {
 	flag.Parse()
 
@@ -32,7 +37,7 @@ func main() {
 	// No arguments? Then just dump a link to browse origin
 	if flag.NArg() == 0 {
 		link := repos.GetHTTPLink()
-		fmt.Println(link)
+		fmt.Println(format_url(link))
 
 		if *doOpen {
 			cmd := exec.Command("xdg-open", link)
@@ -53,11 +58,11 @@ func main() {
 		} else
 		// Parseable as a commit?
 		if out, err := exec.Command("git", "rev-parse", arg).Output(); err == nil {
-			fmt.Println(repos.GetCommitLink(string(out)))
+			fmt.Println(format_url(repos.GetCommitLink(string(out))))
 		}
 
 		if link != "" {
-			fmt.Println(link)
+			fmt.Println(format_url(link))
 			if *doOpen {
 				cmd := exec.Command("xdg-open", link)
 				cmd.Start()

@@ -54,11 +54,8 @@ func main() {
 		if _, err := os.Stat(arg); err == nil {
 			// File exists?
 			link = repos.GetFileLink("master", arg)
-			continue
-		} else
-		// Parseable as a commit?
-		if out, err := exec.Command("git", "rev-parse", arg).Output(); err == nil {
-			fmt.Println(format_url(repos.GetCommitLink(string(out))))
+		} else if out, err := exec.Command("git", "rev-parse", arg).Output(); err == nil {
+			link = repos.GetCommitLink(strings.TrimSpace(string(out)))
 		}
 
 		if link != "" {

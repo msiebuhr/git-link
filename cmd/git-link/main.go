@@ -13,10 +13,23 @@ import (
 
 var remoteName = flag.String("remote", "origin", "What remote to genenrate links for")
 var doOpen = flag.Bool("open", false, "Immediately open in browser")
+var isTerminal bool
+
+func init() {
+	isTerminalDefault := false
+	if fileInfo, err := os.Stdout.Stat(); err == nil {
+		isTerminalDefault = (fileInfo.Mode()&os.ModeCharDevice != 0)
+	}
+	flag.BoolVar(&isTerminal, "term", isTerminalDefault, "Is comment running in terminal")
+}
 
 // Formats a URL as a Hyperlink in a terminal
 func format_url(url string) string {
-	return fmt.Sprintf("\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\", url, url)
+	if isTerminal {
+		return fmt.Sprintf("\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\", url, url)
+	} else {
+		return url
+	}
 }
 
 func main() {

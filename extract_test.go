@@ -21,25 +21,25 @@ func TestExtract(t *testing.T) {
 		// Known-good things
 		{
 			in:  "git@github.com:msiebuhr/foobar.git",
-			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar.git"},
+			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
 		},
 		{
 			in:  "https://github.com/msiebuhr/foobar.git",
-			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar.git"},
+			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
 		},
 		{
 			in:  "git@gitlab.com:msiebuhr/foobar.git",
-			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr", Repository: "foobar.git"},
+			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr", Repository: "foobar"},
 		},
 		{
 			in:  "git@gitlab.com:msiebuhr/suborg/foobar.git",
-			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr/suborg", Repository: "foobar.git"},
+			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr/suborg", Repository: "foobar"},
 		},
 
 		// Self-hosted stuff
 		{
 			in:  "git@gitlab.one.com:dept/subdept/repo.git",
-			out: Repository{Hostname: "gitlab.one.com", Organisation: "dept/subdept", Repository: "repo.git"},
+			out: Repository{Hostname: "gitlab.one.com", Organisation: "dept/subdept", Repository: "repo"},
 		},
 	}
 

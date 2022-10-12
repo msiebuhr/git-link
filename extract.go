@@ -23,6 +23,9 @@ type Repository struct {
 
 	// What kind of host are we dealing with
 	hostKind HostingKind
+
+	// Some local state
+	BranchName string
 }
 
 func (r *Repository) GetHostingKind() HostingKind {
@@ -70,17 +73,25 @@ func (r Repository) GetFileLink(branch, filename string) string {
 	if strings.HasPrefix(filename, "./") {
 		filename = filename[2:]
 	}
+
+	// Get current SHA
+	git := Git{}
+	sha, err := git.GetCurrentCommitSHA()
+	if err != nil {
+		panic(err)
+	}
+	sha = strings.TrimSpace(sha)
 	// TODO: Try resolving commitish to a real SHA?
 	if r.GetHostingKind() == HK_GITLAB {
 		return fmt.Sprintf(
 			"https://%s/%s/%s/-/blob/%s/%s",
-			r.Hostname, r.Organisation, r.Repository, branch, filename)
+			r.Hostname, r.Organisation, r.Repository, sha, filename)
 	}
 
 	if r.GetHostingKind() == HK_GITHUB {
 		return fmt.Sprintf(
 			"https://%s/%s/%s/blob/%s/%s",
-			r.Hostname, r.Organisation, r.Repository, branch, filename)
+			r.Hostname, r.Organisation, r.Repository, sha, filename)
 	}
 
 	return "UNKNOWN"

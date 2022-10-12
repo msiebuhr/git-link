@@ -66,7 +66,7 @@ func main() {
 
 		if _, err := os.Stat(arg); err == nil {
 			// File exists?
-			link = repos.GetFileLink("master", arg)
+			link = repos.GetFileLink(arg)
 		} else if out, err := exec.Command("git", "rev-parse", arg).Output(); err == nil {
 			link = repos.GetCommitLink(strings.TrimSpace(string(out)))
 		}

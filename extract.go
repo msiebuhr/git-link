@@ -69,7 +69,7 @@ func (r Repository) GetCommitLink(sha string) string {
 }
 
 // Get a link to a file
-func (r Repository) GetFileLink(branch, filename string) string {
+func (r Repository) GetFileLink(filename string) string {
 	if strings.HasPrefix(filename, "./") {
 		filename = filename[2:]
 	}

@@ -12,3 +12,9 @@ https://github.com/msiebuhr/git-link/blob/master/README.md
 ```
 
 Only extra option is `--open` (or `-open` for Gophers) that opens the link in a browser. This is done by calling `xdg-open`, which I belive is a Linux-only thing.
+
+## Installation
+
+```sh
+% go install github.com/msiebuhr/git-link/cmd/git-link@latest
+```

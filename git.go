@@ -3,6 +3,7 @@ package gitlink
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type Git struct {
@@ -14,5 +15,5 @@ func (g *Git) GetCurrentCommitSHA() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("unable to get current commit: %w", err)
 	}
-	return string(out), nil
+	return strings.TrimSpace(string(out)), nil
 }

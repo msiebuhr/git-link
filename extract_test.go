@@ -13,6 +13,20 @@ func TestRepostioryGetHostingKind(t *testing.T) {
 	}
 }
 
+func TestGetCommitURL(t *testing.T) {
+	x, err := Extract("git@gitlab.example.com:nested/org/repo.git")
+	if err != nil {
+		t.Fatalf("Could not parse url: %s", err)
+	}
+
+	commitUrl := x.GetCommitURL("some-sha-or-other")
+	expected := "https://gitlab.example.com/nested/org/repo/-/commit/some-sha-or-other"
+
+	if commitUrl.String() != expected {
+		t.Errorf("Expected %#v + some-sha-or-other =>\n%s\ngot\n%s", x, commitUrl, expected)
+	}
+}
+
 func TestExtract(t *testing.T) {
 	tests := []struct {
 		in  string

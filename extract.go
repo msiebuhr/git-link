@@ -46,30 +46,54 @@ func (r *Repository) GetHostingKind() HostingKind {
 }
 
 // HTTP Link returns an educated guess at where the repository can be found
+func (r Repository) GetHTTPURL() *url.URL {
+	return &url.URL{
+		Scheme: "http",
+		Host:   r.Hostname,
+		Path:   r.Repository,
+	}
+}
+
 func (r Repository) GetHTTPLink() string {
 	return fmt.Sprintf("https://%s/%s/%s", r.Hostname, r.Organisation, r.Repository)
 }
 
 // HTTP Commit link
+func (r Repository) GetCommitURL(sha string) *url.URL {
+	switch r.GetHostingKind() {
+	case HK_GITLAB:
+		return &url.URL{
+			Scheme: "https",
+			Host:   r.Hostname,
+			Path: fmt.Sprintf(
+				"%s/%s/-/commit/%s",
+				r.Organisation, r.Repository, sha,
+			),
+		}
+	case HK_GITHUB:
+		return &url.URL{
+			Scheme: "https",
+			Host:   r.Hostname,
+			Path: fmt.Sprintf(
+				"%s/%s/commit/%s",
+				r.Organisation, r.Repository, sha,
+			),
+		}
+	default:
+		return nil
+	}
+}
+
 func (r Repository) GetCommitLink(sha string) string {
-	// TODO: Try resolving commitish to a real SHA?
-	if r.GetHostingKind() == HK_GITLAB {
-		return fmt.Sprintf(
-			"https://%s/%s/%s/-/commit/%s",
-			r.Hostname, r.Organisation, r.Repository, sha)
+	u := r.GetCommitURL(sha)
+	if u == nil {
+		return "UNKNOWN"
 	}
-
-	if r.GetHostingKind() == HK_GITHUB {
-		return fmt.Sprintf(
-			"https://%s/%s/%s/commit/%s",
-			r.Hostname, r.Organisation, r.Repository, sha)
-	}
-
-	return "UNKNOWN"
+	return u.String()
 }
 
 // Get a link to a file
-func (r Repository) GetFileLink(filename string) string {
+func (r Repository) GetFileURL(filename string) *url.URL {
 	if strings.HasPrefix(filename, "./") {
 		filename = filename[2:]
 	}
@@ -80,21 +104,31 @@ func (r Repository) GetFileLink(filename string) string {
 	if err != nil {
 		panic(err)
 	}
-	sha = strings.TrimSpace(sha)
 	// TODO: Try resolving commitish to a real SHA?
-	if r.GetHostingKind() == HK_GITLAB {
-		return fmt.Sprintf(
-			"https://%s/%s/%s/-/blob/%s/%s",
-			r.Hostname, r.Organisation, r.Repository, sha, filename)
+	u := &url.URL{Scheme: "https", Host: r.Hostname}
+	switch r.GetHostingKind() {
+	case HK_GITLAB:
+		u.Path = fmt.Sprintf(
+			"%s/%s/-/blob/%s/%s",
+			r.Organisation, r.Repository, sha, filename,
+		)
+	case HK_GITHUB:
+		u.Path = fmt.Sprintf(
+			"%s/%s/blob/%s/%s",
+			r.Organisation, r.Repository, sha, filename,
+		)
+	default:
+		return nil
 	}
+	return u
+}
 
-	if r.GetHostingKind() == HK_GITHUB {
-		return fmt.Sprintf(
-			"https://%s/%s/%s/blob/%s/%s",
-			r.Hostname, r.Organisation, r.Repository, sha, filename)
+func (r Repository) GetFileLink(filename string) string {
+	u := r.GetFileURL(filename)
+	if u == nil {
+		return "UNKNOWN"
 	}
-
-	return "UNKNOWN"
+	return u.String()
 }
 
 func Extract(gitlink string) (Repository, error) {

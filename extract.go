@@ -48,9 +48,9 @@ func (r *Repository) GetHostingKind() HostingKind {
 // HTTP Link returns an educated guess at where the repository can be found
 func (r Repository) GetHTTPURL() *url.URL {
 	return &url.URL{
-		Scheme: "http",
+		Scheme: "https",
 		Host:   r.Hostname,
-		Path:   r.Repository,
+		Path:   r.Organisation + "/" + r.Repository,
 	}
 }
 

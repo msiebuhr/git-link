@@ -29,31 +29,37 @@ func TestGetCommitURL(t *testing.T) {
 
 func TestExtract(t *testing.T) {
 	tests := []struct {
-		in  string
-		out Repository
+		in       string
+		out      Repository
+		HTTPLink string
 	}{
 		// Known-good things
 		{
-			in:  "git@github.com:msiebuhr/foobar.git",
-			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
+			in:       "git@github.com:msiebuhr/foobar.git",
+			out:      Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
+			HTTPLink: "https://github.com/msiebuhr/foobar",
 		},
 		{
-			in:  "https://github.com/msiebuhr/foobar.git",
-			out: Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
+			in:       "https://github.com/msiebuhr/foobar.git",
+			out:      Repository{Hostname: "github.com", Organisation: "msiebuhr", Repository: "foobar"},
+			HTTPLink: "https://github.com/msiebuhr/foobar",
 		},
 		{
-			in:  "git@gitlab.com:msiebuhr/foobar.git",
-			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr", Repository: "foobar"},
+			in:       "git@gitlab.com:msiebuhr/foobar.git",
+			out:      Repository{Hostname: "gitlab.com", Organisation: "msiebuhr", Repository: "foobar"},
+			HTTPLink: "https://gitlab.com/msiebuhr/foobar",
 		},
 		{
-			in:  "git@gitlab.com:msiebuhr/suborg/foobar.git",
-			out: Repository{Hostname: "gitlab.com", Organisation: "msiebuhr/suborg", Repository: "foobar"},
+			in:       "git@gitlab.com:msiebuhr/suborg/foobar.git",
+			out:      Repository{Hostname: "gitlab.com", Organisation: "msiebuhr/suborg", Repository: "foobar"},
+			HTTPLink: "https://gitlab.com/msiebuhr/suborg/foobar",
 		},
 
 		// Self-hosted stuff
 		{
-			in:  "git@gitlab.one.com:dept/subdept/repo.git",
-			out: Repository{Hostname: "gitlab.one.com", Organisation: "dept/subdept", Repository: "repo"},
+			in:       "git@gitlab.example.com:dept/subdept/repo.git",
+			out:      Repository{Hostname: "gitlab.example.com", Organisation: "dept/subdept", Repository: "repo"},
+			HTTPLink: "https://gitlab.example.com/dept/subdept/repo",
 		},
 	}
 
@@ -73,6 +79,11 @@ func TestExtract(t *testing.T) {
 			}
 			if out.Repository != tt.out.Repository {
 				t.Errorf("Unexpected repository %s, expected %s", out.Repository, tt.out.Repository)
+			}
+
+			httpLink := out.GetHTTPURL().String()
+			if httpLink != tt.HTTPLink {
+				t.Errorf("Unexpected link %s from %v\nexpected %s", httpLink, out, tt.HTTPLink)
 			}
 		})
 	}

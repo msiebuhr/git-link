@@ -45,6 +45,10 @@ func (r *Repository) GetHostingKind() HostingKind {
 	return r.hostKind
 }
 
+func (r Repository) PrettyName() string {
+	return r.Hostname + "/" + r.Organisation + "/" + r.Repository
+}
+
 // HTTP Link returns an educated guess at where the repository can be found
 func (r Repository) GetHTTPURL() *url.URL {
 	return &url.URL{

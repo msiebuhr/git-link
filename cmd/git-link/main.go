@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/msiebuhr/git-link" // gitlink
+	gitlink "github.com/msiebuhr/git-link" // gitlink
 )
 
 var remoteName = flag.String("remote", "origin", "What remote to genenrate links for")
@@ -28,11 +28,14 @@ func init() {
 }
 
 // Formats a URL as a Hyperlink in a terminal
-func format_url(raw_name string, u *url.URL) string {
-	if outputMarkdown {
-		return fmt.Sprintf("[%s/%s](%s)", u.Host, u.Path, u.String())
+func format_url(raw_name string, repo gitlink.Repository, u *url.URL) string {
+	if outputMarkdown && raw_name == "" {
+		return fmt.Sprintf("[%s](%s)", repo.PrettyName(), u.String())
+	} else if outputMarkdown {
+		return fmt.Sprintf("[%s in %s](%s)", raw_name, repo.PrettyName(), u.String())
 	} else if isTerminal {
-		return fmt.Sprintf("\x1b]8;;%s\x1b\\%s/%s\x1b]8;;\x1b\\", u.String(), u.Host, u.Path)
+		// https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+		return fmt.Sprintf("\x1b]8;;%s\x1b\\%s\x1b]8;;\x1b\\", u.String(), u.String(), u.String())
 	} else {
 		return u.String()
 	}
@@ -56,7 +59,7 @@ func main() {
 	// No arguments? Then just dump a link to browse origin
 	if flag.NArg() == 0 {
 		link := repos.GetHTTPURL()
-		fmt.Println(format_url(link.String(), link))
+		fmt.Println(format_url("", repos, link))
 
 		if *doOpen {
 			cmd := exec.Command("xdg-open", link.String())
@@ -78,7 +81,7 @@ func main() {
 		}
 
 		if link != nil {
-			fmt.Println(format_url(arg, link))
+			fmt.Println(format_url(arg, repos, link))
 			if *doOpen {
 				cmd := exec.Command("xdg-open", link.String())
 				cmd.Start()
